@@ -7,7 +7,7 @@ app = Flask(__name__)
 apiKey = "kMl9TQ4wS6S90ElOEWy_rxeaboaf9huxq_sf89uduZg"
 
 
-@app.route("/locations")
+@app.route('/locations' , methods=['GET'])
 def locations():
     coordinates = request.args["query"].split()
     print(len(coordinates))
