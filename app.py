@@ -7,13 +7,13 @@ from cryptography.fernet import Fernet
 
 app = Flask(__name__)
 
-apiKey = 'kMl9TQ4wS6S90ElOEWy_rxeaboaf9huxq_sf89uduZg'
+apiKey = 'here_api_key'
 
 cred = credentials.Certificate('serviceKey.json')
 default_app = firebase_admin.initialize_app(
     cred,
     {
-        'databaseURL': 'https://suggestor-b74ce-default-rtdb.asia-southeast1.firebasedatabase.app/'
+        'databaseURL': 'Your_database_url'
     },
 )
 
@@ -47,7 +47,7 @@ def locations():
     #     f'https://api.geoapify.com/v2/places?categories=accommodation,activity,catering,entertainment,heritage,leisure,natural,national_park,rental,tourism,camping,beach,sport&filter=circle:{coordinates[1]},{coordinates[0]},{radius}&limit={limit}&bias=proximity:{coordinates[1]},{coordinates[0]}&apiKey=feeb6e2716d14e1183b5855688fca6fa'
     # ).json()
     # print(
-    #     f'https://api.geoapify.com/v2/places?categories=catering&filter=circle:{coordinates[1]},{coordinates[0]},{radius}&limit={limit}&apiKey=feeb6e2716d14e1183b5855688fca6fa'
+    #     f'https://api.geoapify.com/v2/places?categories=catering&filter=circle:{coordinates[1]},{coordinates[0]},{radius}&limit={limit}&apiKey=geoapify_key'
     # )
     return data
 
