@@ -1,11 +1,21 @@
 from pprint import pprint
 from flask import Flask, request, jsonify
 import requests
-
+import firebase_admin
+from firebase_admin import credentials, db
+from cryptography.fernet import Fernet
 
 app = Flask(__name__)
 
 apiKey = 'kMl9TQ4wS6S90ElOEWy_rxeaboaf9huxq_sf89uduZg'
+
+cred = credentials.Certificate('serviceKey.json')
+default_app = firebase_admin.initialize_app(
+    cred,
+    {
+        'databaseURL': 'https://suggestor-b74ce-default-rtdb.asia-southeast1.firebasedatabase.app/'
+    },
+)
 
 
 @app.route('/locations', methods=['GET'])
@@ -13,12 +23,12 @@ def locations():
     coordinates = request.args['coords'].split()
     radius = int(request.args['r'])
     limit = int(request.args['limit'])
-    limit = int(limit/4)
+    limit = int(limit / 4)
     data = {}
     data['restaurants'] = requests.get(
         f'https://discover.search.hereapi.com/v1/discover?limit={limit}&q=restaurant&apiKey={apiKey}&in=circle:{coordinates[0]},{coordinates[1]};r={radius}'
     ).json()
-    
+
     data['malls'] = requests.get(
         f'https://discover.search.hereapi.com/v1/discover?limit={limit}&q=mall&apiKey={apiKey}&in=circle:{coordinates[0]},{coordinates[1]};r={radius}'
     ).json()
@@ -30,7 +40,7 @@ def locations():
     data['entertainment'] = requests.get(
         f'https://discover.search.hereapi.com/v1/discover?limit={limit}&q=entertainment&apiKey={apiKey}&in=circle:{coordinates[0]},{coordinates[1]};r={radius}'
     ).json()
-    
+
     # pprint(data)
     # print(len(data['items']))
     # data = requests.get(
@@ -41,14 +51,70 @@ def locations():
     # )
     return data
 
-@app.route('/findPlace',methods=['GET'])
+
+@app.route('/findPlace', methods=['GET'])
 def findPlace():
     coordinates = request.args['coords'].split()
     radius = int(request.args['r'])
     limit = int(request.args['limit'])
     query = request.args['query']
-    data = requests.get(f'https://discover.search.hereapi.com/v1/discover?limit={limit}&q={query}&apiKey={apiKey}&in=circle:{coordinates[0]},{coordinates[1]};r={radius}').json()
+    data = requests.get(
+        f'https://discover.search.hereapi.com/v1/discover?limit={limit}&q={query}&apiKey={apiKey}&in=circle:{coordinates[0]},{coordinates[1]};r={radius}'
+    ).json()
     return data
+
+
+@app.route('/register', methods=['GET'])
+def register():
+    key = Fernet.generate_key()
+    fernet = Fernet(key)
+    print(key)
+    email = request.args['email']
+    username = request.args['username']
+    password = request.args['password']
+    encryption = fernet.encrypt(password.encode())
+    encryption = key + encryption
+    print(encryption)
+    ref = db.reference('/users')
+    if ref.get() == None:
+        structure = {'password': encryption.decode(), 'email': email}
+        ref.set({username: structure})
+    else:
+        data = ref.get()
+        if username not in data.keys():
+            structure = {'password': encryption.decode(), 'email': email}
+            data[username] = structure
+            ref.update(data)
+        else:
+            return jsonify('user found')
+    return jsonify('success')
+
+
+@app.route('/retrive', methods=['GET'])
+def retrive():
+    ref = db.reference('/users')
+    data = ref.get()
+    for key in data.keys():
+        encoded = data[key]['password'].encode()
+        fernet_key = encoded[:44]
+        fernet = Fernet(fernet_key)
+        data[key]['password'] = fernet.decrypt(encoded[44:]).decode()
+
+    return data
+
+
+@app.route('/login')
+def login():
+    data = retrive()
+    username = request.args['username']
+    password = request.args['password']
+    found = False
+    for key in data:
+        if key == username:
+            if password == data[key]['password']:
+                found = True
+    return jsonify(found)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

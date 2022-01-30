@@ -1,3 +1,4 @@
 FLask
 gunicorn
 requests
+firebase_admin
