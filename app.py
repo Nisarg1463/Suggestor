@@ -44,7 +44,7 @@ def locations():
     # pprint(data)
     # print(len(data['items']))
     # data = requests.get(
-    #     f'https://api.geoapify.com/v2/places?categories=accommodation,activity,catering,entertainment,heritage,leisure,natural,national_park,rental,tourism,camping,beach,sport&filter=circle:{coordinates[1]},{coordinates[0]},{radius}&limit={limit}&bias=proximity:{coordinates[1]},{coordinates[0]}&apiKey=feeb6e2716d14e1183b5855688fca6fa'
+    #     f'https://api.geoapify.com/v2/places?categories=accommodation,activity,catering,entertainment,heritage,leisure,natural,national_park,rental,tourism,camping,beach,sport&filter=circle:{coordinates[1]},{coordinates[0]},{radius}&limit={limit}&bias=proximity:{coordinates[1]},{coordinates[0]}&apiKey=geoapify_key'
     # ).json()
     # print(
     #     f'https://api.geoapify.com/v2/places?categories=catering&filter=circle:{coordinates[1]},{coordinates[0]},{radius}&limit={limit}&apiKey=geoapify_key'
